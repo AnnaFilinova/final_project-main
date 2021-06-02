@@ -48,6 +48,6 @@ with st.echo(code_location='below'):
     plt.figure(figsize=(16, 10))
     plt.axis('off')
     plt.imshow(wc.recolor(color_func=img_color), interpolation="bilinear")
-    plt.show()
+    st.plt.show()
 
 
