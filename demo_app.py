@@ -45,9 +45,9 @@ with st.echo(code_location='below'):
                    max_words=2000,
                    random_state=42)
     wcloud = wc.generate_from_frequencies(word_freq)
-    plt.figure(figsize=(16, 10))
+    fig=plt.figure(figsize=(16, 10))
     plt.axis('off')
     plt.imshow(wc.recolor(color_func=img_color), interpolation="bilinear")
-    st.plt.show()
+    st.pyplot(fig)
 
 
