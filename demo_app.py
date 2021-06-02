@@ -12,6 +12,7 @@ from wordcloud import WordCloud, ImageColorGenerator
 
 with st.echo(code_location='below'):
     books = pd.read_csv("goodreads_books.csv")
+    nltk.download('stopwords')
     sw = stopwords.words('english')
     words = []
 
