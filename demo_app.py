@@ -8,15 +8,18 @@ import nltk
 from nltk.corpus import stopwords
 from PIL import Image
 from io import BytesIO
-from wordcloud import WordCloud, ImageColorGenerator
+from wordcloud import WordCloud, ImageColorGenerator, get_single_color_func
 
 with st.echo(code_location='below'):
-    books = pd.read_csv("goodreads_books.csv")
+    df = pd.read_csv("goodreads_books.csv")
+
+    st.title("Книги с goodreads")
+
     nltk.download('stopwords')
     sw = stopwords.words('english')
     words = []
 
-    for text in books["description"]:
+    for text in df["description"]:
         if type(text) == type(float("nan")):
             continue
         text = text.lower()
@@ -27,7 +30,7 @@ with st.echo(code_location='below'):
         for word in text:
             words.append(word)
 
-    word_freq = nltk.FreqDist([i for i in words if len(i) > 2])
+    fr = nltk.FreqDist([i for i in words if len(i) > 2])
     # plt.figure(figsize=(16, 6))
     # word_freq.plot(50)
 
@@ -37,15 +40,16 @@ with st.echo(code_location='below'):
     img = Image.open(f)
 
     mask = np.array(img)
-    img_color = ImageColorGenerator(mask)
+    #img_color = ImageColorGenerator(mask)
+    img_color= get_single_color_func('deepskyblue')
 
-    wc = WordCloud(background_color='white',
+    wc = WordCloud(background_color='#cdffff',
                    mask=mask,
                    max_font_size=2000,
                    max_words=2000,
                    random_state=42)
-    wcloud = wc.generate_from_frequencies(word_freq)
-    fig=plt.figure(figsize=(16, 10))
+    wcloud = wc.generate_from_frequencies(fr)
+    fig=plt.figure(figsize=(15, 10))
     plt.axis('off')
     plt.imshow(wc.recolor(color_func=img_color), interpolation="bilinear")
     st.pyplot(fig)
