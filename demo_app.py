@@ -113,7 +113,10 @@ with st.echo(code_location='below'):
     c.execute("""
     DROP TABLE IF EXISTS topgen;
     """)
-    df1.to_sql(name='topgen', con=conn)
+    try:
+        df1.to_sql(name='topgen', con=conn)
+    except:
+        pass
     conn.close()
 
 
