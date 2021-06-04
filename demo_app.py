@@ -36,12 +36,16 @@ with st.echo(code_location='below'):
     #теперь перекинем наш словарь с жанрам и их встречаемостью в SQL, чтобы открыть в R и построить график там
     df1=pd.DataFrame(d.items(), columns=['genre', 'instances'])
     conn = sqlite3.connect('topgen.sqlite')
+    c = conn.cursor()
+    c.execute("""
+    DROP TABLE IF EXISTS topgen;
+    """)
     df1.to_sql(name='topgen', con=conn)
     conn.close()
 
     st.title("Книги с goodreads")
 
-    st.subheader("Подготовив данные и с помощью SQL выгрузив их в R, строим график в ggplot2. Выгрузим html и посмотрим, что получилось")
+    st.subheader("Подготовив данные (см. код) и с помощью SQL выгрузив их в R, строим график в ggplot2. Выгрузим html и посмотрим, что получилось")
 
     htmlf = open("rfile.nb.html", 'r', encoding='utf-8')
     source_code = htmlf.read()
