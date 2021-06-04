@@ -16,33 +16,6 @@ with st.echo(code_location='below'):
     df = pd.read_csv("goodreads_books.csv")
     df = df.dropna(subset=['genre_and_votes'])
 
-    #посмотрим, какие жанры у нас вообще есть и выберем 20 самых популярных
-    genres=set()
-    d=dict()
-    for i in df['genre_and_votes']:
-        for j in i.split(','):
-            l=''
-            for k in j.split()[:-1]:
-                l=l+' '+k
-            genres.add(l.strip())
-            try:
-                d[l.strip()] = d[l.strip()] + 1
-            except:
-                d[l.strip()] = 1
-    d = sorted(d.items(), key=lambda x: x[1], reverse=True)
-    d=dict(d[:20])
-    topgen=list(d.keys())
-
-    #теперь перекинем наш словарь с жанрам и их встречаемостью в SQL, чтобы открыть в R и построить график там
-    df1=pd.DataFrame(d.items(), columns=['genre', 'instances'])
-    conn = sqlite3.connect('topgen.sqlite')
-    c = conn.cursor()
-    c.execute("""
-    DROP TABLE IF EXISTS topgen;
-    """)
-    df1.to_sql(name='topgen', con=conn)
-    conn.close()
-
     st.title("Книги с goodreads")
 
     st.subheader("Нарисуем прикольную облачную картинку, которая будет показывать частотность слов из описания наших книг"
