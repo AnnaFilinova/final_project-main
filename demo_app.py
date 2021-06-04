@@ -18,8 +18,10 @@ with st.echo(code_location='below'):
 
     st.title("Книги с goodreads")
 
+    st.subheader("Данных много, а Хероку не особо мощный, поэтому грузиться будет медленно. Спасибо за терпение")
+
     st.subheader("Нарисуем прикольную облачную картинку, которая будет показывать частотность слов из описания наших книг"
-                 " (да, она сама тоже в форме книг)")
+                 " (если немного внимательнее посмотреть, увидите, что окраска устроена таким способом, что вырисовывается силуэт книжной стопки)")
 
     nltk.download('stopwords')
     sw = stopwords.words('english')
@@ -50,7 +52,7 @@ with st.echo(code_location='below'):
 
     wc = WordCloud(background_color='white',
                    mask=mask,
-                   max_font_size=700,
+                   max_font_size=400,
                    max_words=2000,
                    random_state=42)
     wcloud = wc.generate_from_frequencies(fr)
@@ -96,6 +98,6 @@ with st.echo(code_location='below'):
     htmlf = open("rfile.nb.html", 'r', encoding='utf-8')
     source_code = htmlf.read()
     print(source_code)
-    components.html(source_code, height=1200)
+    components.html(source_code, height=1100)
 
 
