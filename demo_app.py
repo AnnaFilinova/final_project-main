@@ -8,7 +8,7 @@ import nltk
 from nltk.corpus import stopwords
 from PIL import Image
 from io import BytesIO
-from wordcloud import WordCloud, ImageColorGenerator, get_single_color_func
+from wordcloud import WordCloud, ImageColorGenerator,
 import sqlite3
 import streamlit.components.v1 as components
 
