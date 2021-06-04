@@ -8,7 +8,7 @@ import nltk
 from nltk.corpus import stopwords
 from PIL import Image
 from io import BytesIO
-from wordcloud import WordCloud, ImageColorGenerator,
+from wordcloud import WordCloud, ImageColorGenerator
 import sqlite3
 import streamlit.components.v1 as components
 
@@ -50,7 +50,7 @@ with st.echo(code_location='below'):
 
     wc = WordCloud(background_color='white',
                    mask=mask,
-                   max_font_size=1300,
+                   max_font_size=700,
                    max_words=2000,
                    random_state=42)
     wcloud = wc.generate_from_frequencies(fr)
@@ -96,6 +96,6 @@ with st.echo(code_location='below'):
     htmlf = open("rfile.nb.html", 'r', encoding='utf-8')
     source_code = htmlf.read()
     print(source_code)
-    components.html(source_code, height=1500)
+    components.html(source_code, height=1200)
 
 
