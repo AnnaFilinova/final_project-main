@@ -45,17 +45,14 @@ with st.echo(code_location='below'):
 
     st.title("Книги с goodreads")
 
-    st.subheader("Подготовив данные (см. код) и с помощью SQL выгрузив их в R, строим график в ggplot2. Выгрузим html и посмотрим, что получилось")
-
-    htmlf = open("rfile.nb.html", 'r', encoding='utf-8')
-    source_code = htmlf.read()
-    print(source_code)
-    components.html(source_code, height=2000)
+    st.subheader("Нарисуем прикольную облачную картинку, которая будет показывать частотность слов из описания наших книг"
+                 " (да, она сама тоже в форме книг)")
 
     nltk.download('stopwords')
     sw = stopwords.words('english')
     words = []
 
+    #сделаем подготовку списка слов (заметьте, с использоавнием регулярных выражений :))
     for text in df["description"]:
         if type(text) == type(float("nan")):
             continue
@@ -69,7 +66,7 @@ with st.echo(code_location='below'):
 
     fr = nltk.FreqDist([i for i in words if len(i) > 2])
 
-    #book_img = 'https://www.pinclipart.com/picdir/middle/365-3651885_book-black-and-white-png-peoplesoft-learn-peoplesoft.png'
+    #подгрузим маску в виде стопки книг, чтобы потом получить форму
     book_img='https://www.pinclipart.com/picdir/big/537-5379805_free-book-clipart-transparent-book-images-and-book.png'
     with urllib.request.urlopen(book_img) as url:
         f = BytesIO(url.read())
@@ -77,11 +74,10 @@ with st.echo(code_location='below'):
 
     mask = np.array(img)
     img_color = ImageColorGenerator(mask)
-    #img_color= get_single_color_func('deepskyblue')
 
     wc = WordCloud(background_color='white',
                    mask=mask,
-                   max_font_size=1500,
+                   max_font_size=1300,
                    max_words=2000,
                    random_state=42)
     wcloud = wc.generate_from_frequencies(fr)
@@ -89,5 +85,41 @@ with st.echo(code_location='below'):
     plt.axis('off')
     plt.imshow(wc.recolor(color_func=img_color), interpolation="bilinear")
     st.pyplot(fig)
+
+    st.subheader("Подготовив данные (см. код внизу страницы) и с помощью SQL выгрузив их в R, строим график в ggplot2."
+                 " Выгрузим html и посмотрим, что получилось")
+
+    #выберем 20 самых популярных жанров
+    genres=set()
+    d=dict()
+    for i in df['genre_and_votes']:
+        for j in i.split(','):
+            l=''
+            for k in j.split()[:-1]:
+                l=l+' '+k
+            genres.add(l.strip())
+            try:
+                d[l.strip()] = d[l.strip()] + 1
+            except:
+                d[l.strip()] = 1
+    d = sorted(d.items(), key=lambda x: x[1], reverse=True)
+    d=dict(d[:20])
+    topgen=list(d.keys())
+
+    #теперь перекинем наш словарь с жанрам и их встречаемостью в SQL, чтобы открыть в R и построить график там
+    df1=pd.DataFrame(d.items(), columns=['genre', 'instances'])
+    conn = sqlite3.connect('topgen.sqlite')
+    c = conn.cursor()
+    c.execute("""
+    DROP TABLE IF EXISTS topgen;
+    """)
+    df1.to_sql(name='topgen', con=conn)
+    conn.close()
+
+
+    htmlf = open("rfile.nb.html", 'r', encoding='utf-8')
+    source_code = htmlf.read()
+    print(source_code)
+    components.html(source_code, height=1500)
 
 
