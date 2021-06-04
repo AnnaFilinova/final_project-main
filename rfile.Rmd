@@ -1,0 +1,31 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library("RSQLite")
+con <- dbConnect(drv=RSQLite::SQLite(), dbname="topgen.sqlite")
+tables <- dbListTables(con)
+tables <- tables[tables != "sqlite_sequence"]
+lDataFrames <- vector("list", length=length(tables))
+for (i in seq(along=tables)) {
+  lDataFrames[[i]] <- dbGetQuery(conn=con, statement=paste("SELECT * FROM '", tables[[i]], "'", sep=""))
+}
+df<-lDataFrames[[1]]
+```
+
+
+```{r}
+library(ggplot2)
+p<-ggplot(data=df, aes(x=genre, y=instances, fill=genre)) +
+  geom_bar(stat="identity")+
+  ggtitle("Genre instances on Goodreads")+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+  
+p
+```
+
+
+
