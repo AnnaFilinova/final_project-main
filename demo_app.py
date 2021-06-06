@@ -62,6 +62,41 @@ with st.echo(code_location='below'):
     plt.imshow(wc.recolor(color_func=img_color), interpolation="bilinear")
     st.pyplot(fig)
 
+    st.subheader("Давайте посмотрим на серии, в которых 10 книг")
+
+    ser=set()
+    for i in df['books_in_series']:
+        if (type(i)==str) and (i.count(",") == 8):
+            j=df[df['books_in_series']==i]['series'].to_string()
+            j=j[j.find('(')+1:]
+            j=j[:j.find('(')]
+            j = j[:j.find(')')]
+            try:
+                j=j[:j.find('#')-1]
+            except:pass
+            if ord(j[3])<123:
+                ser.add(j)
+
+    ser=list(ser)
+    ser1=list()
+    for i in ser:
+        k=0
+        for j in df['series']:
+            if i in str(j):
+                k=k+1
+        if k==10: ser1.append(i)
+
+    selser = st.selectbox('Пожалуйста, выберите одну из серий из списка серий из 10 книг, которые остались после отсеивания из-за неполноты таблички',
+                           ser1)
+
+    serbook=list()
+    for i in df['id']:
+        if selser in df[df['id']==i]['series'].to_string():
+            serbook.append(i)
+
+    print(serbook)
+
+
     st.subheader("Подготовив данные (см. код внизу страницы) и с помощью SQL выгрузив их в R, построим график встречаемости 20 самых популярных жанров в ggplot2."
                  " Выгрузим html и посмотрим, что получилось")
 
@@ -99,37 +134,3 @@ with st.echo(code_location='below'):
     source_code = htmlf.read()
     print(source_code)
     components.html(source_code, height=1200)
-
-    st.subheader("Давайте посмотрим на серии, в которых 10 книг")
-
-    ser=set()
-    for i in df['books_in_series']:
-        if (type(i)==str) and (i.count(",") == 8):
-            j=df[df['books_in_series']==i]['series'].to_string()
-            j=j[j.find('(')+1:]
-            j=j[:j.find('(')]
-            j = j[:j.find(')')]
-            try:
-                j=j[:j.find('#')-1]
-            except:pass
-            if ord(j[3])<123:
-                ser.add(j)
-
-    ser=list(ser)
-    ser1=list()
-    for i in ser:
-        k=0
-        for j in df['series']:
-            if i in str(j):
-                k=k+1
-        if k==10: ser1.append(i)
-
-    selser = st.selectbox('Пожалуйста, выберите одну из серий из списка серий из 10 книг, которые остались после отсеивания из-за неполноты таблички',
-                           ser1)
-
-    serbook=list()
-    for i in df['id']:
-        if selser in df[df['id']==i]['series'].to_string():
-            serbook.append(i)
-
-    print(serbook)
