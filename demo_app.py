@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import urllib.request
-from re import sub, match
+from re import sub
 import nltk
 from nltk.corpus import stopwords
 from PIL import Image
@@ -11,6 +11,7 @@ from io import BytesIO
 from wordcloud import WordCloud, ImageColorGenerator
 import sqlite3
 import streamlit.components.v1 as components
+import random
 
 with st.echo(code_location='below'):
     df = pd.read_csv("goodreads_books.csv")
@@ -52,7 +53,7 @@ with st.echo(code_location='below'):
 
     wc = WordCloud(background_color='white',
                    mask=mask,
-                   max_font_size=400,
+                   max_font_size=300,
                    max_words=2000,
                    random_state=42)
     wcloud = wc.generate_from_frequencies(fr)
@@ -61,7 +62,7 @@ with st.echo(code_location='below'):
     plt.imshow(wc.recolor(color_func=img_color), interpolation="bilinear")
     st.pyplot(fig)
 
-    st.subheader("Подготовив данные (см. код внизу страницы) и с помощью SQL выгрузив их в R, строим график в ggplot2."
+    st.subheader("Подготовив данные (см. код внизу страницы) и с помощью SQL выгрузив их в R, построим график встречаемости 20 самых популярных жанров в ggplot2."
                  " Выгрузим html и посмотрим, что получилось")
 
     #выберем 20 самых популярных жанров
@@ -94,10 +95,41 @@ with st.echo(code_location='below'):
         pass
     conn.close()
 
-
     htmlf = open("rfile.nb.html", 'r', encoding='utf-8')
     source_code = htmlf.read()
     print(source_code)
     components.html(source_code, height=1100)
 
+    st.subheader("Давайте посмотрим на серии, в которых 10 книг")
 
+    ser=set()
+    for i in df['books_in_series']:
+        if (type(i)==str) and (i.count(",") == 8):
+            j=df[df['books_in_series']==i]['series'].to_string()
+            j=j[j.find('(')+1:]
+            j=j[:j.find('(')]
+            j = j[:j.find(')')]
+            try:
+                j=j[:j.find('#')-1]
+            except:pass
+            if ord(j[3])<123:
+                ser.add(j)
+
+    ser=list(ser)
+    ser1=list()
+    for i in ser:
+        k=0
+        for j in df['series']:
+            if i in str(j):
+                k=k+1
+        if k==10: ser1.append(i)
+
+    selser = st.selectbox('Пожалуйста, выберите одну из серий из списка серий из 10 книг, которые остались после отсеивания из-за неполноты таблички',
+                           ser1)
+
+    serbook=list()
+    for i in df['id']:
+        if selser in df[df['id']==i]['series'].to_string():
+            serbook.append(i)
+
+    print(serbook)
