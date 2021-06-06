@@ -98,7 +98,7 @@ with st.echo(code_location='below'):
     htmlf = open("rfile.nb.html", 'r', encoding='utf-8')
     source_code = htmlf.read()
     print(source_code)
-    components.html(source_code, height=1100)
+    components.html(source_code, height=1200)
 
     st.subheader("Давайте посмотрим на серии, в которых 10 книг")
 
