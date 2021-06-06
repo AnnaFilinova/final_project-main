@@ -53,7 +53,7 @@ with st.echo(code_location='below'):
 
     wc = WordCloud(background_color='white',
                    mask=mask,
-                   max_font_size=300,
+                   max_font_size=150,
                    max_words=2000,
                    random_state=42)
     wcloud = wc.generate_from_frequencies(fr)
