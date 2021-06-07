@@ -18,6 +18,8 @@ import requests
 from bs4 import BeautifulSoup
 import imageio as io
 import base64
+from numpy import polynomial as P
+from sklearn.linear_model import LinearRegression
 
 with st.echo(code_location='below'):
     df = pd.read_csv("goodreads_books.csv")
@@ -34,7 +36,7 @@ with st.echo(code_location='below'):
     sw = stopwords.words('english')
     words = []
 
-    #сделаем подготовку списка слов (заметьте, с использоавнием регулярных выражений :))
+    #сделаем подготовку списка слов (заметьте, с использованием регулярных выражений :))
     for text in df["description"]:
         if type(text) == type(float("nan")):
             continue
@@ -68,7 +70,7 @@ with st.echo(code_location='below'):
     plt.imshow(wc.recolor(color_func=img_color), interpolation="bilinear")
     st.pyplot(fig)
 
-    st.subheader("Давайте посмотрим на серии, в которых 10 книг (эта часть, к сожалению, грузится особенно долго")
+    st.subheader("Давайте посмотрим на серии, в которых 10 книг (эта часть, к сожалению, грузится особенно долго)")
 
     #создадим сет из серий, которые претендуют на то, что в них 10 книг
     ser=set()
@@ -97,7 +99,7 @@ with st.echo(code_location='below'):
     selser = st.selectbox('Пожалуйста, выберите одну из серий из списка серий из 10 книг, которые остались после отсеивания из-за неполноты таблички',
                            ser1)
 
-    #списко книг серии
+    #список книг серии
     serbook=list()
     for i in df['title']:
         if selser in df[df['title']==i]['series'].to_string():
@@ -141,8 +143,55 @@ with st.echo(code_location='below'):
         unsafe_allow_html=True
     )
 
+    st.subheader("Посмотрим, как меняется рейтинг от книги к книгк в серии 'Akiko Books' "
+                 "(она просто очень удобно лежит в этой табличке, книги идут в том же порядке, что и в серии)")
 
-    st.subheader("Подготовив данные (см. код внизу страницы) и с помощью SQL выгрузив их в R, построим график встречаемости 20 самых популярных жанров в ggplot2."
+    #список рейтингов
+    rat=list()
+    for i in df['series']:
+        try:
+            if 'Akiko Books' in i:
+                rat.append(float(df[df['series']==i]['average_rating']))
+        except: pass
+
+    st.subheader("Используя питоновскую математику, а именно интерполяцию многочленов (линал:)) и немного машинки, посмотрим,"
+                 " имеет ли смысл пытаться точно оценивать функцию изменения рейтинга в этом случае или сойдёт обычная"
+                 " линейная регрессия")
+
+    #построим интерполяционные многочлены 9, 15 и 20 степеней
+    x=np.array([1,2,3,4,5,6,7,8,9,10])
+    y=np.array(rat)
+    f1 = P.Polynomial.fit(x, y, 9)
+    f2 = P.Polynomial.fit(x, y, 15)
+    f3 = P.Polynomial.fit(x, y, 20)
+
+    #построим линейную регрессию
+    x=x.reshape((-1, 1))
+    regr=LinearRegression().fit(x, y)
+    def f4(x):
+        return x*regr.coef_+regr.intercept_
+
+    #теперь построим график и посмотрим, насколько многочлчен далёк от прямой
+    xx = np.linspace(x.min(), x.max(), 100)
+    fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+    ax.plot(xx, f1(xx), color='black', lw=2,  label='Интерполяция 9 степени')
+    ax.plot(xx, f2(xx), color='blue', lw=2, label='Интерполяция 15 степени')
+    ax.plot(xx, f3(xx), color='green', lw=2, label='Интерполяция 20 степени')
+    ax.plot(xx, f4(xx), 'r--', lw=2, label='Линейная регрессия')
+    ax.scatter(x, y, label='Данные по рейтингу')
+    ax.legend(loc=0)
+    ax.set_xticks(x)
+    ax.set_xlabel("номер книги", fontsize=18)
+    ax.set_ylabel("рейтинг", fontsize=18)
+    st.pyplot(fig)
+
+    st.subheader("Видно, что прямая не так сильно отдалена от наших точек, а интерполяционные многочлены периодически"
+                 " уходят в какие-то странные стороны. Ещё раз вспоминаем о том, что иногда лучше недоучить, "
+                 "чем переучить модель")
+
+
+    st.subheader("Подготовив данные (см. код внизу страницы) и с помощью SQL выгрузив их в R,"
+                 " построим график встречаемости 20 самых популярных жанров в ggplot2."
                  " Выгрузим html и посмотрим, что получилось")
 
     #выберем 20 самых популярных жанров
