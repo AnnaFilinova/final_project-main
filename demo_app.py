@@ -17,7 +17,6 @@ from robobrowser import RoboBrowser
 import requests
 from bs4 import BeautifulSoup
 import imageio as io
-import os
 import base64
 
 with st.echo(code_location='below'):
