@@ -16,6 +16,9 @@ werkzeug.cached_property = werkzeug.utils.cached_property
 from robobrowser import RoboBrowser
 import requests
 from bs4 import BeautifulSoup
+import imageio as io
+import os
+import base64
 
 with st.echo(code_location='below'):
     df = pd.read_csv("goodreads_books.csv")
@@ -68,6 +71,7 @@ with st.echo(code_location='below'):
 
     st.subheader("Давайте посмотрим на серии, в которых 10 книг")
 
+    #создадим сет из серий, которые претендуют на то, что в них 10 книг
     ser=set()
     for i in df['books_in_series']:
         if (type(i)==str) and (i.count(",") == 8):
@@ -81,6 +85,7 @@ with st.echo(code_location='below'):
             if ord(j[3])<123:
                 ser.add(j)
 
+    #оставим только те, в которых действительно 10 книг
     ser=list(ser)
     ser1=list()
     for i in ser:
@@ -93,20 +98,20 @@ with st.echo(code_location='below'):
     selser = st.selectbox('Пожалуйста, выберите одну из серий из списка серий из 10 книг, которые остались после отсеивания из-за неполноты таблички',
                            ser1)
 
+    #списко книг серии
     serbook=list()
     for i in df['title']:
         if selser in df[df['title']==i]['series'].to_string():
             serbook.append(i)
 
+    #создадим список ссылок на обложки, используя робобраузер
     images=list()
     for i in serbook:
         browser = RoboBrowser(history=True)
         browser.open('https://www.goodreads.com/list/show/1.Best_Books_Ever')
         form = browser.get_form(action='/search')
-        form
         form['q'].value = i
         browser.submit_form(form)
-
         page = browser.select('.bookTitle')
         browser.follow_link(page[0])
         b = str(browser)
@@ -120,6 +125,23 @@ with st.echo(code_location='below'):
                     break
             except:
                 pass
+
+    st.subheader("Ловите гифку с обложками книг из серии")
+
+    with io.get_writer('posters.gif', mode='I', duration=0.5) as writer:
+        for i in range (10):
+            image = io.imread(images[i])
+            writer.append_data(image)
+    writer.close()
+    file_ = open("posters.gif", "rb")
+    contents = file_.read()
+    url = base64.b64encode(contents).decode("utf-8")
+    file_.close()
+    st.markdown(
+        f'<img src="data:image/gif;base64,{url}" alt="gif">',
+        unsafe_allow_html=True
+    )
+
 
     st.subheader("Подготовив данные (см. код внизу страницы) и с помощью SQL выгрузив их в R, построим график встречаемости 20 самых популярных жанров в ggplot2."
                  " Выгрузим html и посмотрим, что получилось")
