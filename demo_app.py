@@ -11,7 +11,11 @@ from io import BytesIO
 from wordcloud import WordCloud, ImageColorGenerator
 import sqlite3
 import streamlit.components.v1 as components
-import random
+import werkzeug
+werkzeug.cached_property = werkzeug.utils.cached_property
+from robobrowser import RoboBrowser
+import requests
+from bs4 import BeautifulSoup
 
 with st.echo(code_location='below'):
     df = pd.read_csv("goodreads_books.csv")
@@ -90,12 +94,32 @@ with st.echo(code_location='below'):
                            ser1)
 
     serbook=list()
-    for i in df['id']:
-        if selser in df[df['id']==i]['series'].to_string():
+    for i in df['title']:
+        if selser in df[df['title']==i]['series'].to_string():
             serbook.append(i)
 
-    print(serbook)
+    images=list()
+    for i in serbook:
+        browser = RoboBrowser(history=True)
+        browser.open('https://www.goodreads.com/list/show/1.Best_Books_Ever')
+        form = browser.get_form(action='/search')
+        form
+        form['q'].value = i
+        browser.submit_form(form)
 
+        page = browser.select('.bookTitle')
+        browser.follow_link(page[0])
+        b = str(browser)
+        lin=b[b.find('=')+1: b.find('>')]
+        r=requests.get(lin).text
+        s=BeautifulSoup(r)
+        for j in s.find_all("img"):
+            try:
+                if j['id']=='coverImage':
+                    images.append(j['src'])
+                    break
+            except:
+                pass
 
     st.subheader("Подготовив данные (см. код внизу страницы) и с помощью SQL выгрузив их в R, построим график встречаемости 20 самых популярных жанров в ggplot2."
                  " Выгрузим html и посмотрим, что получилось")
