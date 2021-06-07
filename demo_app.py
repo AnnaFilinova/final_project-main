@@ -68,7 +68,7 @@ with st.echo(code_location='below'):
     plt.imshow(wc.recolor(color_func=img_color), interpolation="bilinear")
     st.pyplot(fig)
 
-    st.subheader("Давайте посмотрим на серии, в которых 10 книг")
+    st.subheader("Давайте посмотрим на серии, в которых 10 книг (эта часть, к сожалению, грузится особенно долго")
 
     #создадим сет из серий, которые претендуют на то, что в них 10 книг
     ser=set()
