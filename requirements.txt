@@ -7,5 +7,4 @@ wordcloud
 components
 robobrowser
 imageio
-scipy
 scikit-learn
