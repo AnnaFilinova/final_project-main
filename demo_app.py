@@ -5,6 +5,7 @@ import numpy as np
 import urllib.request
 from re import sub
 import nltk
+nltk.download('stopwords')
 from nltk.corpus import stopwords
 from PIL import Image
 from io import BytesIO
@@ -32,7 +33,7 @@ with st.echo(code_location='below'):
     st.subheader("Нарисуем прикольную облачную картинку, которая будет показывать частотность слов из описания наших книг"
                  " (если немного внимательнее посмотреть, увидите, что окраска устроена таким способом, что вырисовывается силуэт книжной стопки)")
 
-    #nltk.download('stopwords')
+    nltk.download('stopwords')
     sw = stopwords.words('english')
     words = []
 
