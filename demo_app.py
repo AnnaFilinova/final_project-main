@@ -211,17 +211,47 @@ with st.echo(code_location='below'):
                 d[l.strip()] = 1
     d = sorted(d.items(), key=lambda x: x[1], reverse=True)
     d=dict(d[:20])
-    topgen=list(d.keys())
+    df1 = pd.DataFrame(d.items(), columns=['genre', 'instances'])
 
-    #теперь перекинем наш словарь с жанрам и их встречаемостью в SQL, чтобы открыть в R и построить график там
-    df1=pd.DataFrame(d.items(), columns=['genre', 'instances'])
+    topgen=list(d.keys())
+    top3=topgen[:3]
+    df2=pd.DataFrame(columns=['id', 'genre', 'rating'])
+    l1=list()
+    l2=list()
+    l3=list()
+    for i in df['id']:
+        if top3[0] in df[df['id']==i]['genre_and_votes'].to_string():
+            l1.append(i)
+            l2.append(top3[0])
+            l3.append(float(df[df['id']==i]['average_rating']))
+        if top3[1] in df[df['id'] == i]['genre_and_votes'].to_string():
+            l1.append(i)
+            l2.append(top3[1])
+            l3.append(float(df[df['id'] == i]['average_rating']))
+        if top3[2] in df[df['id']==i]['genre_and_votes'].to_string():
+            l1.append(i)
+            l2.append(top3[2])
+            l3.append(float(df[df['id']==i]['average_rating']))
+    df2['id']=l1
+    df2['genre']=l2
+    df2['rating']=l3
+
+    #теперь перекинем наши датафреймы в SQL, чтобы открыть в R, ещё немного обработать и построить графики
+
     conn = sqlite3.connect('topgen.sqlite')
     c = conn.cursor()
     c.execute("""
-    DROP TABLE IF EXISTS topgen;
+    DROP TABLE IF EXISTS topgen1;
+    """)
+    c.execute("""
+    DROP TABLE IF EXISTS topgen2;
     """)
     try:
-        df1.to_sql(name='topgen', con=conn)
+        df1.to_sql(name='topgen1', con=conn)
+    except:
+        pass
+    try:
+        df2.to_sql(name='topgen2', con=conn)
     except:
         pass
     conn.close()
@@ -229,4 +259,4 @@ with st.echo(code_location='below'):
     htmlf = open("rfile.nb.html", 'r', encoding='utf-8')
     source_code = htmlf.read()
     print(source_code)
-    components.html(source_code, height=1200)
+    components.html(source_code, height=2500)

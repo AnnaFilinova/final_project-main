@@ -4,6 +4,7 @@ output: html_notebook
 ---
 
 ```{r}
+#ещё немного повозимся с SQl, чтобы достать наши таблички из базы данных
 library("RSQLite")
 con <- dbConnect(drv=RSQLite::SQLite(), dbname="topgen.sqlite")
 tables <- dbListTables(con)
@@ -12,13 +13,16 @@ lDataFrames <- vector("list", length=length(tables))
 for (i in seq(along=tables)) {
   lDataFrames[[i]] <- dbGetQuery(conn=con, statement=paste("SELECT * FROM '", tables[[i]], "'", sep=""))
 }
-df<-lDataFrames[[1]]
+df1<-lDataFrames[[2]]
+df2<-lDataFrames[[3]]
+dbDisconnect(con)
 ```
 
 
 ```{r}
+#с помощью ggplot2 построим столбчатую диаграмму и посмотрим на частотность 20 самых популярных жанров
 library(ggplot2)
-p<-ggplot(data=df, aes(x=genre, y=instances, fill=genre)) +
+p<-ggplot(data=df1, aes(x=genre, y=instances, fill=genre)) +
   geom_bar(stat="identity")+
   ggtitle("Genre instances on Goodreads")+
   theme(axis.text.x=element_blank(),
@@ -27,5 +31,27 @@ p<-ggplot(data=df, aes(x=genre, y=instances, fill=genre)) +
 p
 ```
 
+```{r}
+#подготовим наш датафрейм с помощью tidyverse
+library(tidyverse)
+df2<-df2 %>% filter(rating>4.6) %>% select(id,genre, rating)
+df2<-df2%>% group_by(genre)
+```
 
+
+```{r}
+#с помощью расшиерния ggstatsplot нарисуем, как выглядит распределение 3 самых популярных жанров
+set.seed(123)
+library(ggstatsplot)
+q<-ggbetweenstats(
+  data = df2,
+  x = genre,
+  y = rating,
+  title = "Лучшие книги 3 самых популярных жанров"+
+  theme(axis.text.x=element_blank(),
+      axis.ticks.x=element_blank())  
+)
+
+q
+```
 
