@@ -109,6 +109,8 @@ with st.echo(code_location='below'):
     #создадим список ссылок на обложки, используя робобраузер
     images=list()
     for i in serbook:
+        if selser=='The Demonata':
+            i=f"{i} The Demonata"
         browser = RoboBrowser(history=True)
         browser.open('https://www.goodreads.com/list/show/1.Best_Books_Ever')
         form = browser.get_form(action='/search')
