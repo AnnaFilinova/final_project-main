@@ -146,7 +146,7 @@ with st.echo(code_location='below'):
         unsafe_allow_html=True
     )
 
-    st.subheader("Посмотрим, как меняется рейтинг от книги к книгк в серии 'Akiko Books' "
+    st.subheader("Посмотрим, как меняется рейтинг от книги к книге в серии 'Akiko Books' "
                  "(она просто очень удобно лежит в этой табличке, книги идут в том же порядке, что и в серии)")
 
     #список рейтингов
@@ -259,4 +259,4 @@ with st.echo(code_location='below'):
     htmlf = open("rfile.nb.html", 'r', encoding='utf-8')
     source_code = htmlf.read()
     print(source_code)
-    components.html(source_code, height=2500)
+    components.html(source_code, height=2000)
