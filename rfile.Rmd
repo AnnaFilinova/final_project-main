@@ -20,13 +20,20 @@ dbDisconnect(con)
 
 
 ```{r}
-#с помощью ggplot2 построим столбчатую диаграмму и посмотрим на частотность 20 самых популярных жанров
+#с помощью ggplot2 построим столбчатую диаграмму и посмотрим на частотность 20 самых популярных жанров, а также их среднюю частотность (горизонтальная линия на графике)
 library(ggplot2)
 p<-ggplot(data=df1, aes(x=genre, y=instances, fill=genre)) +
   geom_bar(stat="identity")+
   ggtitle("Genre instances on Goodreads")+
   theme(axis.text.x=element_blank(),
-        axis.ticks.x=element_blank())
+        axis.ticks.x=element_blank())+
+  geom_hline(yintercept = mean(df1$instances),
+             color="darkblue",
+             size=1)+
+  geom_text(aes(3, mean(instances),
+                label = "mean",
+                vjust = - 1),
+            color="darkblue")
   
 p
 ```
