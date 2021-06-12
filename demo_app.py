@@ -273,4 +273,4 @@ with st.echo(code_location='below'):
     htmlf = open("rfile.nb.html", 'r', encoding='utf-8')
     source_code = htmlf.read()
     print(source_code)
-    components.html(source_code, height=2400)
+    components.html(source_code, height=2300)
